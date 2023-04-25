@@ -130,7 +130,6 @@ func TestGetSignal(t *testing.T) {
 		}
 
 		signal := revclose.GetSignal(candles, levels, testCase.Input.Close)
-
 		// fmt.Printf("testcase signal: %+v\n Expected signal: %+v\n signal: %+v\n", testCase.Output.LevelsWithinRangeIDs, expectedSignal, signal)
 		if !signalsEqual(expectedSignal, signal) {
 			t.Errorf("The signal does not match the expected signal:\nExpected: %+v\nActual:   %+v", expectedSignal, signal)

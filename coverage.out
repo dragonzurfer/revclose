@@ -1,0 +1,18 @@
+mode: set
+github.com/dragonzurfer/revclose/fractal.go:3.64,4.55 1 1
+github.com/dragonzurfer/revclose/fractal.go:7.2,16.19 6 1
+github.com/dragonzurfer/revclose/fractal.go:4.55,6.3 1 1
+github.com/dragonzurfer/revclose/fractal.go:19.64,20.55 1 1
+github.com/dragonzurfer/revclose/fractal.go:23.2,32.17 6 1
+github.com/dragonzurfer/revclose/fractal.go:20.55,22.3 1 1
+github.com/dragonzurfer/revclose/fractal.go:35.72,37.36 2 1
+github.com/dragonzurfer/revclose/fractal.go:48.2,48.14 1 0
+github.com/dragonzurfer/revclose/fractal.go:37.36,38.35 1 1
+github.com/dragonzurfer/revclose/fractal.go:42.3,42.35 1 1
+github.com/dragonzurfer/revclose/fractal.go:38.35,41.4 2 1
+github.com/dragonzurfer/revclose/fractal.go:42.35,46.4 2 1
+github.com/dragonzurfer/revclose/revclose.go:31.97,34.31 2 1
+github.com/dragonzurfer/revclose/revclose.go:40.2,40.22 1 1
+github.com/dragonzurfer/revclose/revclose.go:34.31,35.47 1 1
+github.com/dragonzurfer/revclose/revclose.go:35.47,37.4 1 1
+github.com/dragonzurfer/revclose/revclose.go:44.88,58.2 8 1

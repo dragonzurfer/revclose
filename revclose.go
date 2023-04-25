@@ -28,7 +28,31 @@ type Signal struct {
 	LevelsWithinRange []LevelInterface
 }
 
+func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) []LevelInterface {
+	var crossedLevels []LevelInterface
+
+	for _, level := range levels {
+		if level.HasCrossed(reversal, close, level) {
+			crossedLevels = append(crossedLevels, level)
+		}
+	}
+
+	return crossedLevels
+}
+
 //Two inputs, Candle data (OHLC), Prices (levels)
 func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) Signal {
-	return Signal{Reversal: 17612.5, Close: 17631.9, Value: Buy, LevelsWithinRange: levels}
+	var signal Signal
+	//get reversal of RevCloseCandles, which is william fractal of 5 candles
+	reversal, signalValue := getLatestReversal(candles)
+
+	//check for hasCrossed within range (reversal to close) and add all within to signal.LevelsWithinRange
+	crossedLevels := GetLevelsCrossedInRange(reversal, close, levels)
+
+	signal.Reversal = reversal
+	signal.Value = signalValue
+	signal.Close = close
+	signal.LevelsWithinRange = crossedLevels
+
+	return signal
 }

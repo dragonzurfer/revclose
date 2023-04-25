@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>revclose: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/dragonzurfer/revclose/fractal.go (96.0%)</option>
+				
+				<option value="file1">github.com/dragonzurfer/revclose/revclose.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package revclose
+
+func isBullishFractal(candles RevCloseCandles, index int) bool <span class="cov8" title="1">{
+        if index &lt; 2 || index &gt; candles.GetCandlesLength()-3 </span><span class="cov8" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="1">_, high, _, _ := candles.GetCandle(index).GetOHLC()
+        _, prevHigh1, _, _ := candles.GetCandle(index - 1).GetOHLC()
+        _, prevHigh2, _, _ := candles.GetCandle(index - 2).GetOHLC()
+        _, nextHigh1, _, _ := candles.GetCandle(index + 1).GetOHLC()
+        _, nextHigh2, _, _ := candles.GetCandle(index + 2).GetOHLC()
+
+        return high &gt; prevHigh1 &amp;&amp;
+                high &gt; prevHigh2 &amp;&amp;
+                high &gt; nextHigh1 &amp;&amp;
+                high &gt; nextHigh2</span>
+}
+
+func isBearishFractal(candles RevCloseCandles, index int) bool <span class="cov8" title="1">{
+        if index &lt; 2 || index &gt; candles.GetCandlesLength()-3 </span><span class="cov8" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="1">_, _, low, _ := candles.GetCandle(index).GetOHLC()
+        _, _, prevLow1, _ := candles.GetCandle(index - 1).GetOHLC()
+        _, _, prevLow2, _ := candles.GetCandle(index - 2).GetOHLC()
+        _, _, nextLow1, _ := candles.GetCandle(index + 1).GetOHLC()
+        _, _, nextLow2, _ := candles.GetCandle(index + 2).GetOHLC()
+
+        return low &lt; prevLow1 &amp;&amp;
+                low &lt; prevLow2 &amp;&amp;
+                low &lt; nextLow1 &amp;&amp;
+                low &lt; nextLow2</span>
+}
+
+func getLatestReversal(candles RevCloseCandles) (float64, SignalValue) <span class="cov8" title="1">{
+        latestIndex := candles.GetCandlesLength() - 1
+        for i := latestIndex; i &gt;= 2; i-- </span><span class="cov8" title="1">{
+                if isBullishFractal(candles, i) </span><span class="cov8" title="1">{
+                        _, high, _, _ := candles.GetCandle(i).GetOHLC()
+                        return high, Sell
+                }</span>
+                <span class="cov8" title="1">if isBearishFractal(candles, i) </span><span class="cov8" title="1">{
+                        _, _, low, _ := candles.GetCandle(i).GetOHLC()
+
+                        return low, Buy
+                }</span>
+        }
+        <span class="cov0" title="0">return 0, ""</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package revclose
+
+type RevCandle interface {
+        GetOHLC() (float64, float64, float64, float64)
+}
+
+type RevCloseCandles interface {
+        GetCandle(int) RevCandle
+        GetCandlesLength() int
+}
+
+type LevelInterface interface {
+        //reversal,close,level
+        HasCrossed(float64, float64, interface{}) bool
+}
+
+type SignalValue string
+
+const (
+        Buy  SignalValue = "BUY"
+        Sell SignalValue = "SELL"
+)
+
+type Signal struct {
+        Reversal          float64
+        Close             float64
+        Value             SignalValue
+        LevelsWithinRange []LevelInterface
+}
+
+func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) []LevelInterface <span class="cov8" title="1">{
+        var crossedLevels []LevelInterface
+
+        for _, level := range levels </span><span class="cov8" title="1">{
+                if level.HasCrossed(reversal, close, level) </span><span class="cov8" title="1">{
+                        crossedLevels = append(crossedLevels, level)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return crossedLevels</span>
+}
+
+//Two inputs, Candle data (OHLC), Prices (levels)
+func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) Signal <span class="cov8" title="1">{
+        var signal Signal
+        //get reversal of RevCloseCandles, which is william fractal of 5 candles
+        reversal, signalValue := getLatestReversal(candles)
+
+        //check for hasCrossed within range (reversal to close) and add all within to signal.LevelsWithinRange
+        crossedLevels := GetLevelsCrossedInRange(reversal, close, levels)
+
+        signal.Reversal = reversal
+        signal.Value = signalValue
+        signal.Close = close
+        signal.LevelsWithinRange = crossedLevels
+
+        return signal
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
