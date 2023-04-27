@@ -1,6 +1,10 @@
 package revclose
 
 type RevCandle interface {
+	GetHigh() float64
+	GetLow() float64
+	GetClose() float64
+	GetOpen() float64
 	GetOHLC() (float64, float64, float64, float64)
 }
 

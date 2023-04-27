@@ -14,6 +14,19 @@ type MockRevCandle struct {
 	O, H, L, C float64
 }
 
+func (c *MockRevCandle) GetHigh() float64 {
+	return c.H
+}
+func (c *MockRevCandle) GetLow() float64 {
+	return c.L
+}
+func (c *MockRevCandle) GetClose() float64 {
+	return c.C
+}
+func (c *MockRevCandle) GetOpen() float64 {
+	return c.O
+}
+
 func (c *MockRevCandle) GetOHLC() (float64, float64, float64, float64) {
 	return c.O, c.H, c.L, c.C
 }
