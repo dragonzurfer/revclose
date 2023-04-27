@@ -55,9 +55,13 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/dragonzurfer/revclose/fractal.go (96.0%)</option>
+				<option value="file0">github.com/dragonzurfer/revclose/fractal.go (100.0%)</option>
 				
-				<option value="file1">github.com/dragonzurfer/revclose/revclose.go (100.0%)</option>
+				<option value="file1">github.com/dragonzurfer/revclose/levels.go (100.0%)</option>
+				
+				<option value="file2">github.com/dragonzurfer/revclose/revclose.go (100.0%)</option>
+				
+				<option value="file3">github.com/dragonzurfer/revclose/singvalue.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -72,6 +76,8 @@
 		<div id="content">
 		
 		<pre class="file" id="file0" style="display: none">package revclose
+
+import "math"
 
 func isBullishFractal(candles RevCloseCandles, index int) bool <span class="cov8" title="1">{
         if index &lt; 2 || index &gt; candles.GetCandlesLength()-3 </span><span class="cov8" title="1">{
@@ -105,24 +111,43 @@ func isBearishFractal(candles RevCloseCandles, index int) bool <span class="cov8
                 low &lt; nextLow2</span>
 }
 
-func getLatestReversal(candles RevCloseCandles) (float64, SignalValue) <span class="cov8" title="1">{
+func getLatestReversal(candles RevCloseCandles) float64 <span class="cov8" title="1">{
         latestIndex := candles.GetCandlesLength() - 1
         for i := latestIndex; i &gt;= 2; i-- </span><span class="cov8" title="1">{
                 if isBullishFractal(candles, i) </span><span class="cov8" title="1">{
                         _, high, _, _ := candles.GetCandle(i).GetOHLC()
-                        return high, Sell
+                        return high
                 }</span>
                 <span class="cov8" title="1">if isBearishFractal(candles, i) </span><span class="cov8" title="1">{
                         _, _, low, _ := candles.GetCandle(i).GetOHLC()
 
-                        return low, Buy
+                        return low
                 }</span>
         }
-        <span class="cov0" title="0">return 0, ""</span>
+        <span class="cov8" title="1">return math.SmallestNonzeroFloat64</span>
 }
 </pre>
 		
 		<pre class="file" id="file1" style="display: none">package revclose
+
+import "math"
+
+func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) []LevelInterface <span class="cov8" title="1">{
+        var crossedLevels []LevelInterface
+
+        if reversal != math.SmallestNonzeroFloat64 </span><span class="cov8" title="1">{
+                for _, level := range levels </span><span class="cov8" title="1">{
+                        if level.HasCrossed(reversal, close, level) </span><span class="cov8" title="1">{
+                                crossedLevels = append(crossedLevels, level)
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return crossedLevels</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package revclose
 
 type RevCandle interface {
         GetOHLC() (float64, float64, float64, float64)
@@ -141,8 +166,9 @@ type LevelInterface interface {
 type SignalValue string
 
 const (
-        Buy  SignalValue = "BUY"
-        Sell SignalValue = "SELL"
+        Buy     SignalValue = "BUY"
+        Sell    SignalValue = "SELL"
+        Nuetral SignalValue = "NUETRAL"
 )
 
 type Signal struct {
@@ -152,26 +178,17 @@ type Signal struct {
         LevelsWithinRange []LevelInterface
 }
 
-func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) []LevelInterface <span class="cov8" title="1">{
-        var crossedLevels []LevelInterface
-
-        for _, level := range levels </span><span class="cov8" title="1">{
-                if level.HasCrossed(reversal, close, level) </span><span class="cov8" title="1">{
-                        crossedLevels = append(crossedLevels, level)
-                }</span>
-        }
-
-        <span class="cov8" title="1">return crossedLevels</span>
-}
-
 //Two inputs, Candle data (OHLC), Prices (levels)
 func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) Signal <span class="cov8" title="1">{
         var signal Signal
         //get reversal of RevCloseCandles, which is william fractal of 5 candles
-        reversal, signalValue := getLatestReversal(candles)
+        reversal := getLatestReversal(candles)
 
         //check for hasCrossed within range (reversal to close) and add all within to signal.LevelsWithinRange
         crossedLevels := GetLevelsCrossedInRange(reversal, close, levels)
+
+        //generate Signal
+        signalValue := GetSignalValue(reversal, close, len(crossedLevels))
 
         signal.Reversal = reversal
         signal.Value = signalValue
@@ -180,6 +197,24 @@ func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) 
 
         return signal
 }</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package revclose
+
+import "math"
+
+func GetSignalValue(reversal float64, close float64, numberOfCrossedLevels int) SignalValue <span class="cov8" title="1">{
+        if numberOfCrossedLevels == 0 || reversal == math.SmallestNonzeroFloat64 </span><span class="cov8" title="1">{
+                return Nuetral
+        }</span>
+        <span class="cov8" title="1">switch </span>{
+        case reversal &gt; close:<span class="cov8" title="1">
+                return Sell</span>
+        case reversal &lt; close:<span class="cov8" title="1">
+                return Buy</span>
+        }
+        <span class="cov8" title="1">return Nuetral</span>
+}
 </pre>
 		
 		</div>

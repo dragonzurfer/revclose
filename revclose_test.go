@@ -70,6 +70,10 @@ func TestGetSignal(t *testing.T) {
 	testCases := []string{
 		"testcase1.json",
 		"testcase2.json",
+		"testcase3.json",
+		"testcase4.json",
+		"testcase5.json",
+		"testcase6.json",
 		// Add more test case file names here
 	}
 

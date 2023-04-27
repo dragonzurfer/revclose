@@ -17,8 +17,9 @@ type LevelInterface interface {
 type SignalValue string
 
 const (
-	Buy  SignalValue = "BUY"
-	Sell SignalValue = "SELL"
+	Buy     SignalValue = "BUY"
+	Sell    SignalValue = "SELL"
+	Nuetral SignalValue = "NUETRAL"
 )
 
 type Signal struct {
@@ -28,26 +29,17 @@ type Signal struct {
 	LevelsWithinRange []LevelInterface
 }
 
-func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) []LevelInterface {
-	var crossedLevels []LevelInterface
-
-	for _, level := range levels {
-		if level.HasCrossed(reversal, close, level) {
-			crossedLevels = append(crossedLevels, level)
-		}
-	}
-
-	return crossedLevels
-}
-
 //Two inputs, Candle data (OHLC), Prices (levels)
 func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) Signal {
 	var signal Signal
 	//get reversal of RevCloseCandles, which is william fractal of 5 candles
-	reversal, signalValue := getLatestReversal(candles)
+	reversal := getLatestReversal(candles)
 
 	//check for hasCrossed within range (reversal to close) and add all within to signal.LevelsWithinRange
 	crossedLevels := GetLevelsCrossedInRange(reversal, close, levels)
+
+	//generate Signal
+	signalValue := GetSignalValue(reversal, close, len(crossedLevels))
 
 	signal.Reversal = reversal
 	signal.Value = signalValue

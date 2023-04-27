@@ -1,5 +1,7 @@
 package revclose
 
+import "math"
+
 func isBullishFractal(candles RevCloseCandles, index int) bool {
 	if index < 2 || index > candles.GetCandlesLength()-3 {
 		return false
@@ -32,18 +34,18 @@ func isBearishFractal(candles RevCloseCandles, index int) bool {
 		low < nextLow2
 }
 
-func getLatestReversal(candles RevCloseCandles) (float64, SignalValue) {
+func getLatestReversal(candles RevCloseCandles) float64 {
 	latestIndex := candles.GetCandlesLength() - 1
 	for i := latestIndex; i >= 2; i-- {
 		if isBullishFractal(candles, i) {
 			_, high, _, _ := candles.GetCandle(i).GetOHLC()
-			return high, Sell
+			return high
 		}
 		if isBearishFractal(candles, i) {
 			_, _, low, _ := candles.GetCandle(i).GetOHLC()
 
-			return low, Buy
+			return low
 		}
 	}
-	return 0, ""
+	return math.SmallestNonzeroFloat64
 }

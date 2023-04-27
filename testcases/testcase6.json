@@ -1,0 +1,35 @@
+{
+    "input": {
+        "candles": [
+            {
+                "O": 17707.6,
+                "H": 17709.2,
+                "L": 17652.95,
+                "C": 17669.7
+            },
+            {
+                "O": 17668.7,
+                "H": 17675.5,
+                "L": 17654.6,
+                "C": 17669.4
+            }
+        ],
+        "levels": [
+            {
+                "ID": 1,
+                "Crossed": true
+            }
+        ],
+        "close": 17631.9
+    },
+    "output": {
+        "signal": {
+            "Reversal": 17612.5,
+            "Close": 17631.9,
+            "Value": "BUY"
+        },
+        "LevelsWithinRangeIDs": [
+            1
+        ]
+    }
+}
