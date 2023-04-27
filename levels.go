@@ -7,7 +7,7 @@ func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) [
 
 	if reversal != math.SmallestNonzeroFloat64 {
 		for _, level := range levels {
-			if level.HasCrossed(reversal, close, level) {
+			if level.HasCrossed(reversal, close) {
 				crossedLevels = append(crossedLevels, level)
 			}
 		}

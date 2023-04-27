@@ -39,7 +39,7 @@ func (l *MockLevel) GetID() int {
 	return l.ID
 }
 
-func (l *MockLevel) HasCrossed(value2 float64, value float64, candle interface{}) bool {
+func (l *MockLevel) HasCrossed(value2 float64, value float64) bool {
 	return l.Crossed
 }
 
@@ -136,7 +136,7 @@ func TestGetSignal(t *testing.T) {
 		signal := revclose.GetSignal(candles, levels, testCase.Input.Close)
 		// fmt.Printf("testcase signal: %+v\n Expected signal: %+v\n signal: %+v\n", testCase.Output.LevelsWithinRangeIDs, expectedSignal, signal)
 		if !signalsEqual(expectedSignal, signal) {
-			t.Errorf("The signal does not match the expected signal:\nExpected: %+v\nActual:   %+v", expectedSignal, signal)
+			t.Errorf("The signal does not match the expected signal on %v\nExpected: %+v\nActual:   %+v", tc, expectedSignal, signal)
 		}
 	}
 }

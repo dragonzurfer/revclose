@@ -24,12 +24,10 @@
     },
     "output": {
         "signal": {
-            "Reversal": 17612.5,
+            "Reversal": 5e-324,
             "Close": 17631.9,
-            "Value": "BUY"
+            "Value": "NEUTRAL"
         },
-        "LevelsWithinRangeIDs": [
-            1
-        ]
+        "LevelsWithinRangeIDs": []
     }
 }

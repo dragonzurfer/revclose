@@ -11,7 +11,7 @@ type RevCloseCandles interface {
 
 type LevelInterface interface {
 	//reversal,close,level
-	HasCrossed(float64, float64, interface{}) bool
+	HasCrossed(float64, float64) bool
 }
 
 type SignalValue string
@@ -19,7 +19,7 @@ type SignalValue string
 const (
 	Buy     SignalValue = "BUY"
 	Sell    SignalValue = "SELL"
-	Nuetral SignalValue = "NUETRAL"
+	Nuetral SignalValue = "NEUTRAL"
 )
 
 type Signal struct {
