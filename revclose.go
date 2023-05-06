@@ -26,7 +26,15 @@ const (
 	Nuetral SignalValue = "NEUTRAL"
 )
 
+type ReversalType string
+
+const (
+	Bearish ReversalType = "Bearish"
+	Bullish ReversalType = "Bullish"
+)
+
 type Signal struct {
+	ReversalType      ReversalType
 	Reversal          float64
 	Close             float64
 	Value             SignalValue
@@ -37,7 +45,7 @@ type Signal struct {
 func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) Signal {
 	var signal Signal
 	//get reversal of RevCloseCandles, which is william fractal of 5 candles
-	reversal := getLatestReversal(candles)
+	reversal, reversalType := getLatestReversal(candles)
 
 	//check for hasCrossed within range (reversal to close) and add all within to signal.LevelsWithinRange
 	crossedLevels := GetLevelsCrossedInRange(reversal, close, levels)
@@ -46,6 +54,7 @@ func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) 
 	signalValue := GetSignalValue(reversal, close, len(crossedLevels))
 
 	signal.Reversal = reversal
+	signal.ReversalType = reversalType
 	signal.Value = signalValue
 	signal.Close = close
 	signal.LevelsWithinRange = crossedLevels
