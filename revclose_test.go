@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/dragonzurfer/revclose"
+	"revclose"
 )
 
 type MockRevCandle struct {
@@ -87,6 +87,7 @@ func TestGetSignal(t *testing.T) {
 		"testcase4.json",
 		"testcase5.json",
 		"testcase6.json",
+		"testcase7.json",
 		// Add more test case file names here
 	}
 

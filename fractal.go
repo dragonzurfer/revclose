@@ -37,14 +37,24 @@ func isBearishFractal(candles RevCloseCandles, index int) bool {
 func getLatestReversal(candles RevCloseCandles) (float64, ReversalType) {
 	latestIndex := candles.GetCandlesLength() - 1
 	for i := latestIndex; i >= 2; i-- {
+		bullishFractalExist, bearishFractalExist := false, false
+		price := 0.0
+		var reversalType ReversalType
 		if isBullishFractal(candles, i) {
 			_, high, _, _ := candles.GetCandle(i).GetOHLC()
-			return high, Bullish
+			bullishFractalExist = true
+			price, reversalType = high, Bullish
 		}
 		if isBearishFractal(candles, i) {
 			_, _, low, _ := candles.GetCandle(i).GetOHLC()
-
-			return low, Bearish
+			bearishFractalExist = true
+			price, reversalType = low, Bearish
+		}
+		if bullishFractalExist && bearishFractalExist {
+			return math.SmallestNonzeroFloat64, Bullish
+		}
+		if bullishFractalExist || bearishFractalExist {
+			return price, reversalType
 		}
 	}
 	return math.SmallestNonzeroFloat64, Bullish

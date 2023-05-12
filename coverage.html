@@ -111,20 +111,30 @@ func isBearishFractal(candles RevCloseCandles, index int) bool <span class="cov8
                 low &lt; nextLow2</span>
 }
 
-func getLatestReversal(candles RevCloseCandles) float64 <span class="cov8" title="1">{
+func getLatestReversal(candles RevCloseCandles) (float64, ReversalType) <span class="cov8" title="1">{
         latestIndex := candles.GetCandlesLength() - 1
         for i := latestIndex; i &gt;= 2; i-- </span><span class="cov8" title="1">{
+                bullishFractalExist, bearishFractalExist := false, false
+                price := 0.0
+                var reversalType ReversalType
                 if isBullishFractal(candles, i) </span><span class="cov8" title="1">{
                         _, high, _, _ := candles.GetCandle(i).GetOHLC()
-                        return high
+                        bullishFractalExist = true
+                        price, reversalType = high, Bullish
                 }</span>
                 <span class="cov8" title="1">if isBearishFractal(candles, i) </span><span class="cov8" title="1">{
                         _, _, low, _ := candles.GetCandle(i).GetOHLC()
-
-                        return low
+                        bearishFractalExist = true
+                        price, reversalType = low, Bearish
+                }</span>
+                <span class="cov8" title="1">if bullishFractalExist &amp;&amp; bearishFractalExist </span><span class="cov8" title="1">{
+                        return math.SmallestNonzeroFloat64, Bullish
+                }</span>
+                <span class="cov8" title="1">if bullishFractalExist || bearishFractalExist </span><span class="cov8" title="1">{
+                        return price, reversalType
                 }</span>
         }
-        <span class="cov8" title="1">return math.SmallestNonzeroFloat64</span>
+        <span class="cov8" title="1">return math.SmallestNonzeroFloat64, Bullish</span>
 }
 </pre>
 		
@@ -137,7 +147,7 @@ func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) [
 
         if reversal != math.SmallestNonzeroFloat64 </span><span class="cov8" title="1">{
                 for _, level := range levels </span><span class="cov8" title="1">{
-                        if level.HasCrossed(reversal, close, level) </span><span class="cov8" title="1">{
+                        if level.HasCrossed(reversal, close) </span><span class="cov8" title="1">{
                                 crossedLevels = append(crossedLevels, level)
                         }</span>
                 }
@@ -150,6 +160,10 @@ func GetLevelsCrossedInRange(reversal, close float64, levels []LevelInterface) [
 		<pre class="file" id="file2" style="display: none">package revclose
 
 type RevCandle interface {
+        GetHigh() float64
+        GetLow() float64
+        GetClose() float64
+        GetOpen() float64
         GetOHLC() (float64, float64, float64, float64)
 }
 
@@ -160,7 +174,7 @@ type RevCloseCandles interface {
 
 type LevelInterface interface {
         //reversal,close,level
-        HasCrossed(float64, float64, interface{}) bool
+        HasCrossed(float64, float64) bool
 }
 
 type SignalValue string
@@ -168,10 +182,18 @@ type SignalValue string
 const (
         Buy     SignalValue = "BUY"
         Sell    SignalValue = "SELL"
-        Nuetral SignalValue = "NUETRAL"
+        Nuetral SignalValue = "NEUTRAL"
+)
+
+type ReversalType string
+
+const (
+        Bearish ReversalType = "Bearish"
+        Bullish ReversalType = "Bullish"
 )
 
 type Signal struct {
+        ReversalType      ReversalType
         Reversal          float64
         Close             float64
         Value             SignalValue
@@ -182,7 +204,7 @@ type Signal struct {
 func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) Signal <span class="cov8" title="1">{
         var signal Signal
         //get reversal of RevCloseCandles, which is william fractal of 5 candles
-        reversal := getLatestReversal(candles)
+        reversal, reversalType := getLatestReversal(candles)
 
         //check for hasCrossed within range (reversal to close) and add all within to signal.LevelsWithinRange
         crossedLevels := GetLevelsCrossedInRange(reversal, close, levels)
@@ -191,6 +213,7 @@ func GetSignal(candles RevCloseCandles, levels []LevelInterface, close float64) 
         signalValue := GetSignalValue(reversal, close, len(crossedLevels))
 
         signal.Reversal = reversal
+        signal.ReversalType = reversalType
         signal.Value = signalValue
         signal.Close = close
         signal.LevelsWithinRange = crossedLevels
