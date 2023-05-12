@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"revclose"
+	"github.com/dragonzurfer/revclose"
 )
 
 type MockRevCandle struct {
